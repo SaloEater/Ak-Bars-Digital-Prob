@@ -26,23 +26,9 @@ namespace AkBarsTest.Command
         public void Execute(string sourcePath, string destinationPath)
         {
             var sendParams = SendParamsFactory.Create(sourcePath, destinationPath);
-            RemoveFolder(sendParams.DestinationPath);
             CreateRemoteFolder(sendParams.DestinationPath, "");
             Recursive(sendParams.SourcePath, sendParams.DestinationPath);
             Task.WhenAll(Tasks).Wait();
-        }
-
-        private void RemoveFolder(string destinationPath)
-        {
-            string uri = "https://cloud-api.yandex.net/v1/disk/resources/?path=" + destinationPath;
-            using (var client = GetAuthorizedHttpClient()) {
-                try {
-                    Console.WriteLine($"Removing {destinationPath} folder");
-                    var result = client.DeleteAsync(uri).Result;
-                } catch (Exception e) {
-
-                }
-            }
         }
 
         private void CreateRemoteFolder(string folderName, string destinationPath)
@@ -63,11 +49,11 @@ namespace AkBarsTest.Command
 
         private HttpRequestMessage CreateCreationRequest(string folderName, string destinationPath)
         {
-            string targetDirectory = CombineAndFormatPath(destinationPath, folderName);
+            string targetFolder = CombineAndFormatPath(destinationPath, folderName);
             var request = new HttpRequestMessage
             {
                 Method = HttpMethod.Put,
-                RequestUri = new Uri($"https://cloud-api.yandex.net/v1/disk/resources/?path={targetDirectory}"),
+                RequestUri = new Uri($"https://cloud-api.yandex.net/v1/disk/resources/?path={targetFolder}"),
                 Content = new StringContent("")
             };
             return request;
